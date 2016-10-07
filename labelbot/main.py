@@ -18,7 +18,7 @@ from labelbot import LabelBot, UrlParam
               type=click.Path(exists=True,
                               file_okay=True,
                               readable=True),
-              # default='rules.cfg',
+              default='rules.cfg.sample',
               help='file containing issues labeling rules')
 @click.option('--interval',
               '-i',

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import click
+import re
 import requests
 import sched
 import sys
@@ -24,8 +25,13 @@ class LabelBot(object):
         # get request session and validate token
         self.session = self._get_requests_session(self.token)
 
-        # TODO load and validate rules
-        self.rules = []
+        # load and validate rules
+        self.rules = self._get_rules(rules_file)
+
+        # TODO check issues
+        # for rule in self.rules:
+        #     if rule.pattern.findall(issue_content):
+        #         add_label(rule.label)
 
     def add_repos(self, repos):
         """Add repos and start labeling them"""
@@ -36,9 +42,23 @@ class LabelBot(object):
         self.scheduler.run()
 
     def _label_issues(self, repo, interval):
-        print("Doing stuff..." + repo)
+        print("Checking issues in " + repo)
         self.scheduler.enter(self.interval, 1, self._label_issues,
                              argument=(repo, self.interval,))
+
+    def _get_rules(self, rules_file):
+        """Get labeling rules from the provided file"""
+        # TODO improve rules validation
+        rules = []
+        with open(rules_file) as rules_file:
+            for line in rules_file.readlines():
+                words = line.splitlines()[0].split('::')
+                print(words)
+                if len(words) != 2:
+                    print("Skipping invalid rule. ", file=sys.stderr)
+                    continue
+                rules.append(LabelingRule(words[0], words[1]))
+        return rules
 
     def _get_token(self, token_file):
         """Get GitHub token from the provided file"""
@@ -94,3 +114,10 @@ class UrlParam(click.ParamType):
             self.fail('{} is not accessible. '.format(value), param, ctx)
 
         return value
+
+
+class LabelingRule(object):
+    def __init__(self, regex, label):
+        self.pattern = re.compile(regex)
+        print(self.pattern.pattern)
+        self.label = label
