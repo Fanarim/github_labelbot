@@ -21,11 +21,12 @@ from labelbot import LabelBot
               type=click.Path(exists=True,
                               file_okay=True,
                               readable=True),
-            #   default='rules.cfg',
+              # default='rules.cfg',
               help='file containing issues labeling rules')
 @click.option('--interval',
               '-i',
               type=int,
+              default=10,
               help='time interval in seconds in which to check issues')
 @click.option('--default-label',
               '-d',

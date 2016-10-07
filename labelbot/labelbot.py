@@ -1,19 +1,33 @@
 #!/usr/bin/env python3
 
 import requests
+import sched
 import sys
+import time
 
 
 class LabelBot(object):
     def __init__(self):
         self.last_issue_checked = 0
+        self.scheduler = sched.scheduler(time.time, time.sleep)
 
     def run(self, repo, token_file, rules_file, interval, default_label,
             check_comments, recheck):
         """Run the labelbot"""
+        # get GitHub token
         token = self._get_token(token_file)
+
+        # get request session and validate token
         self.session = self._get_requests_session(token)
-        # periodically label issues
+
+        # start labeling issues
+        self.scheduler.enter(0, 1, self._label_issues, argument=(interval,))
+        self.scheduler.run()
+
+    def _label_issues(self, interval):
+        print("Doing stuff...")
+        self.scheduler.enter(interval, 1, self._label_issues,
+                             argument=(interval,))
 
     def _get_token(self, token_file):
         """Get GitHub token from the provided file"""
