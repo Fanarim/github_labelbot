@@ -13,9 +13,6 @@ from labelbot import LabelBot
                               readable=True),
               default='token.cfg',
               help='file containing GitHub token information')
-@click.option('--repo',
-              '-r',
-              help='URL of repository this bot should operate on')
 @click.option('--rules-file',
               '-u',
               type=click.Path(exists=True,
@@ -40,11 +37,14 @@ from labelbot import LabelBot
               is_flag=True,
               help='flag indicating all issues should be checked, \
                     not only the new ones')
-def cli(repo, token_file, rules_file, interval, default_label,
+@click.argument('repo_urls',
+                nargs=-1,
+                required=True)
+def cli(repo_urls, token_file, rules_file, interval, default_label,
         check_comments, recheck):
-    labelbot = LabelBot()
-    labelbot.run(repo, token_file, rules_file, interval, default_label,
-                 check_comments, recheck)
+    labelbot = LabelBot(token_file, rules_file, default_label, interval,
+                        check_comments, recheck)
+    labelbot.add_repos(repo_urls)
 
 if __name__ == '__main__':
     cli()

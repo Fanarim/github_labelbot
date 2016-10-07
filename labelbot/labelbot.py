@@ -7,27 +7,36 @@ import time
 
 
 class LabelBot(object):
-    def __init__(self):
+    def __init__(self, token_file, rules_file, default_label, interval,
+                 check_comments, recheck):
         self.last_issue_checked = 0
         self.scheduler = sched.scheduler(time.time, time.sleep)
+        self.default_label = default_label
+        self.interval = interval
+        self.check_comments = check_comments
+        self.recheck = recheck
 
-    def run(self, repo, token_file, rules_file, interval, default_label,
-            check_comments, recheck):
-        """Run the labelbot"""
         # get GitHub token
-        token = self._get_token(token_file)
+        self.token = self._get_token(token_file)
 
         # get request session and validate token
-        self.session = self._get_requests_session(token)
+        self.session = self._get_requests_session(self.token)
 
-        # start labeling issues
-        self.scheduler.enter(0, 1, self._label_issues, argument=(interval,))
+        # TODO load and validate rules
+        self.rules = []
+
+    def add_repos(self, repos):
+        """Add repos and start labeling them"""
+        # start labeling issues in given repos
+        for repo in repos:
+            self.scheduler.enter(0, 1, self._label_issues,
+                                 argument=(repo, self.interval,))
         self.scheduler.run()
 
-    def _label_issues(self, interval):
-        print("Doing stuff...")
-        self.scheduler.enter(interval, 1, self._label_issues,
-                             argument=(interval,))
+    def _label_issues(self, repo, interval):
+        print("Doing stuff..." + repo)
+        self.scheduler.enter(self.interval, 1, self._label_issues,
+                             argument=(repo, self.interval,))
 
     def _get_token(self, token_file):
         """Get GitHub token from the provided file"""
