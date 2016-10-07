@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+import click
 import requests
 import sched
 import sys
 import time
+import validators
 
 
 class LabelBot(object):
@@ -73,3 +75,22 @@ class LabelBot(object):
             sys.exit(1)
 
         return session
+
+
+class UrlParam(click.ParamType):
+    name = 'url'
+
+    def convert(self, value, param, ctx):
+        if not validators.url(value):
+            self.fail('{} is not a valid URL. '.format(value), param, ctx)
+
+        if 'github.com' not in value:
+            self.fail('{} is not a GitHub URL. '.format(value), param, ctx)
+
+        try:
+            response = requests.get(value)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError:
+            self.fail('{} is not accessible. '.format(value), param, ctx)
+
+        return value

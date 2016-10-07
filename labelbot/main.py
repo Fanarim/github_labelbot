@@ -2,7 +2,7 @@
 
 import click
 
-from labelbot import LabelBot
+from labelbot import LabelBot, UrlParam
 
 
 @click.command()
@@ -39,7 +39,8 @@ from labelbot import LabelBot
                     not only the new ones')
 @click.argument('repo_urls',
                 nargs=-1,
-                required=True)
+                required=True,
+                type=UrlParam())
 def cli(repo_urls, token_file, rules_file, interval, default_label,
         check_comments, recheck):
     labelbot = LabelBot(token_file, rules_file, default_label, interval,
