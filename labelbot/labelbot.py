@@ -81,6 +81,7 @@ class LabelBot(object):
         for issue in issues:
             labels_to_add = []
             matched = False
+
             # match rules in issue body and title
             for rule in self.rules:
                 if rule.pattern.findall(issue['body'])\
@@ -88,7 +89,7 @@ class LabelBot(object):
                     labels_to_add.append(rule.label)
                     matched = True
 
-            # match rules in issue comments if desired
+            # match rules in issue comments if needed
             issue_endpoint = urljoin(issues_endpoint, str(issue['number']))
             if self.check_comments:
                 issue_comments_endpoint = urljoin(issue_endpoint, 'comments')
@@ -104,10 +105,11 @@ class LabelBot(object):
             # get existing label strings
             existing_labels = [label['name'] for label in issue['labels']]
 
-            # set new labels
+            # set default label if needed
             if self.default_label and matched == 0:
                 labels_to_add.append(self.default_label)
 
+            # set new labels
             labels_to_add = list(set(labels_to_add))  # make values unique
             new_labels = existing_labels + labels_to_add
             if not new_labels == existing_labels:

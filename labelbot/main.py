@@ -32,11 +32,6 @@ from labelbot import LabelBot, UrlParam
               '-c',
               is_flag=True,
               help='flag indicating comments should also be checked')
-@click.option('--recheck',
-              '-r',
-              is_flag=True,
-              help='flag indicating all issues should be checked, \
-                    not only the new ones')
 @click.argument('repo_urls',
                 nargs=-1,
                 required=True,
