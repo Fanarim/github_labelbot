@@ -32,12 +32,9 @@ class LabelBot(object):
         # load and validate rules
         self.rules = self._get_rules(rules_file)
 
+        # TODO check status_code
         repos_endpoint = urljoin(self.github_api_url, '/user/repos')
         self.available_repos_json = self.session.get(repos_endpoint).json()
-
-        # for rule in self.rules:
-        #     if rule.pattern.findall(issue_content):
-        #         add_label(rule.label)
 
     def add_repos(self, repos):
         """Add repos and start labeling them"""
@@ -66,7 +63,37 @@ class LabelBot(object):
         """Add labels to issues in given repo based on labeling rules"""
         print("Labeling issues in " + repo)
 
-        # TODO
+        # TODO do not check all issues, only the new ones
+        # (based on user options)
+
+        # get issues in given repo
+        # TODO improve joining urls (need urlparse.urljoin behavior)
+        issues_endpoint = urljoin(self.github_api_url, 'repos')
+        issues_endpoint = urljoin(issues_endpoint + '/', repo)
+        issues_endpoint = urljoin(issues_endpoint + '/', 'issues')
+
+        response = self.session.get(issues_endpoint)
+        try:
+            response.raise_for_status()
+        except:
+            # TODO
+            pass
+        issues = response.json()
+
+        labels_to_add = []
+        for issue in issues:
+            # match rules in issue body and title
+            for rule in self.rules:
+                if rule.pattern.findall(issue['body'])\
+                        or rule.pattern.findall(issue['title']):
+                    labels_to_add.append(rule.label)
+
+        print(labels_to_add)
+            # TODO match rules in issue comments if desired
+
+            # get existing labels
+
+            # set new labels
 
         # run this again after given interval
         self.scheduler.enter(self.interval, 1, self._label_issues,
