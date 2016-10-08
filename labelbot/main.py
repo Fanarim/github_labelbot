@@ -46,6 +46,7 @@ def cli(repo_urls, token_file, rules_file, interval, default_label,
     labelbot = LabelBot(token_file, rules_file, default_label, interval,
                         check_comments, recheck)
     labelbot.add_repos(repo_urls)
+    labelbot.run()
 
 if __name__ == '__main__':
     cli()

@@ -60,6 +60,8 @@ class LabelBot(object):
         for repo in repo_names:
             self.scheduler.enter(0, 1, self._label_issues,
                                  argument=(repo, self.interval,))
+
+    def run(self):
         self.scheduler.run()
 
     def _label_issues(self, repo, interval):
