@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from urllib.parse import urljoin
+
 import click
 import re
 import requests
@@ -12,6 +14,7 @@ import validators
 class LabelBot(object):
     def __init__(self, token_file, rules_file, default_label, interval,
                  check_comments, recheck):
+        self.github_api_url = 'https://api.github.com'
         self.last_issue_checked = 0
         self.scheduler = sched.scheduler(time.time, time.sleep)
         self.default_label = default_label
@@ -28,21 +31,43 @@ class LabelBot(object):
         # load and validate rules
         self.rules = self._get_rules(rules_file)
 
-        # TODO check issues
+        # get user login and available repos from GitHub API
+        # user_endpoint = urljoin(self.github_api_url, '/user')
+        # self.login = self.session.get(user_endpoint).json()['login']
+        #
+        repos_endpoint = urljoin(self.github_api_url, '/user/repos')
+        self.available_repos_json = self.session.get(repos_endpoint).json()
+
         # for rule in self.rules:
         #     if rule.pattern.findall(issue_content):
         #         add_label(rule.label)
 
     def add_repos(self, repos):
         """Add repos and start labeling them"""
-        # start labeling issues in given repos
+        # get list of user/repo values to be labeled
+        repo_names = []
         for repo in repos:
+            for available_repo in self.available_repos_json:
+                found = False
+                if repo == available_repo['html_url']:
+                    repo_names.append(available_repo['full_name'])
+                    found = True
+            if not found:
+                print('Repository {} is not valid or bot is not allowed to '
+                      'access it. '.format(repo), file=sys.stderr)
+
+        # start labeling issues in given repos
+        for repo in repo_names:
             self.scheduler.enter(0, 1, self._label_issues,
                                  argument=(repo, self.interval,))
         self.scheduler.run()
 
     def _label_issues(self, repo, interval):
-        print("Checking issues in " + repo)
+        print("Labeling issues in " + repo)
+
+        # TODO
+
+        # run this again after given interval
         self.scheduler.enter(self.interval, 1, self._label_issues,
                              argument=(repo, self.interval,))
 
@@ -53,7 +78,6 @@ class LabelBot(object):
         with open(rules_file) as rules_file:
             for line in rules_file.readlines():
                 words = line.splitlines()[0].split('::')
-                print(words)
                 if len(words) != 2:
                     print("Skipping invalid rule. ", file=sys.stderr)
                     continue
@@ -76,7 +100,8 @@ class LabelBot(object):
         try:
             response = session.get('https://api.github.com/user')
         except:
-            print('Could not connect to GitHub. Are you online? ')
+            print('Could not connect to GitHub. Are you online? ',
+                  file=sys.stderr)
             sys.exit(1)
 
         try:
@@ -119,5 +144,4 @@ class UrlParam(click.ParamType):
 class LabelingRule(object):
     def __init__(self, regex, label):
         self.pattern = re.compile(regex)
-        print(self.pattern.pattern)
         self.label = label
