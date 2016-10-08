@@ -59,12 +59,14 @@ class LabelBot(object):
         # start labeling issues in given repos
         for repo in repo_names:
             self.scheduler.enter(0, 1, self._label_issues,
-                                 argument=(repo, self.interval,))
+                                 argument=(repo,))
 
     def run(self):
+        """Initiate labeling by running a scheduler"""
         self.scheduler.run()
 
-    def _label_issues(self, repo, interval):
+    def _label_issues(self, repo):
+        """Add labels to issues in given repo based on labeling rules"""
         print("Labeling issues in " + repo)
 
         # TODO
@@ -125,6 +127,7 @@ class LabelBot(object):
 
 
 class UrlParam(click.ParamType):
+    """Class used for validating GitHub Repository URLs"""
     name = 'url'
 
     def convert(self, value, param, ctx):
@@ -144,6 +147,7 @@ class UrlParam(click.ParamType):
 
 
 class LabelingRule(object):
+    """Simple structure holding a single labeling rule"""
     def __init__(self, regex, label):
         self.pattern = re.compile(regex)
         self.label = label
