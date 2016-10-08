@@ -12,9 +12,10 @@ import validators
 
 
 class LabelBot(object):
+    github_api_url = 'https://api.github.com'
+
     def __init__(self, token_file, rules_file, default_label, interval,
                  check_comments, recheck):
-        self.github_api_url = 'https://api.github.com'
         self.last_issue_checked = 0
         self.scheduler = sched.scheduler(time.time, time.sleep)
         self.default_label = default_label
@@ -31,10 +32,6 @@ class LabelBot(object):
         # load and validate rules
         self.rules = self._get_rules(rules_file)
 
-        # get user login and available repos from GitHub API
-        # user_endpoint = urljoin(self.github_api_url, '/user')
-        # self.login = self.session.get(user_endpoint).json()['login']
-        #
         repos_endpoint = urljoin(self.github_api_url, '/user/repos')
         self.available_repos_json = self.session.get(repos_endpoint).json()
 
@@ -73,7 +70,7 @@ class LabelBot(object):
 
         # run this again after given interval
         self.scheduler.enter(self.interval, 1, self._label_issues,
-                             argument=(repo, self.interval,))
+                             argument=(repo,))
 
     def _get_rules(self, rules_file):
         """Get labeling rules from the provided file"""
