@@ -42,8 +42,8 @@ class LabelBot(object):
         # get list of user/repo values to be labeled
         repo_names = []
         for repo in repos:
+            found = False
             for available_repo in self.available_repos_json:
-                found = False
                 if repo == available_repo['html_url']:
                     repo_names.append(available_repo['full_name'])
                     found = True

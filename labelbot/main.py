@@ -35,7 +35,6 @@ from labelbot import LabelBot, UrlParam
 @click.option('--skip-labeled',
               '-s',
               is_flag=True,
-              default=False,
               help='skip labeling issues that already have any label')
 @click.argument('repo_urls',
                 nargs=-1,
