@@ -80,11 +80,13 @@ class LabelBot(object):
         # iterate through all isues
         for issue in issues:
             labels_to_add = []
+            matched = False
             # match rules in issue body and title
             for rule in self.rules:
                 if rule.pattern.findall(issue['body'])\
                         or rule.pattern.findall(issue['title']):
                     labels_to_add.append(rule.label)
+                    matched = True
 
             # match rules in issue comments if desired
             issue_endpoint = urljoin(issues_endpoint, str(issue['number']))
@@ -97,11 +99,15 @@ class LabelBot(object):
                     for rule in self.rules:
                         if rule.pattern.findall(comment['body']):
                             labels_to_add.append(rule.label)
+                            matched = True
 
             # get existing label strings
             existing_labels = [label['name'] for label in issue['labels']]
 
             # set new labels
+            if self.default_label and matched == 0:
+                labels_to_add.append(self.default_label)
+
             labels_to_add = list(set(labels_to_add))  # make values unique
             new_labels = existing_labels + labels_to_add
             if not new_labels == existing_labels:
