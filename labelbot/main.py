@@ -31,7 +31,6 @@ from labelbot import LabelBot, UrlParam
 @click.option('--check-comments',
               '-c',
               is_flag=True,
-              default=True,
               help='flag indicating comments should also be checked')
 @click.option('--skip-labeled',
               '-s',
