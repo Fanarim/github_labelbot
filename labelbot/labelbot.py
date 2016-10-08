@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-from urllib.parse import urljoin
+from posixpath import join as urljoin
 
 import click
+import json
 import re
 import requests
 import sched
@@ -33,7 +34,7 @@ class LabelBot(object):
         self.rules = self._get_rules(rules_file)
 
         # TODO check status_code
-        repos_endpoint = urljoin(self.github_api_url, '/user/repos')
+        repos_endpoint = urljoin(self.github_api_url, 'user/repos')
         self.available_repos_json = self.session.get(repos_endpoint).json()
 
     def add_repos(self, repos):
@@ -67,11 +68,7 @@ class LabelBot(object):
         # (based on user options)
 
         # get issues in given repo
-        # TODO improve joining urls (need urlparse.urljoin behavior)
-        issues_endpoint = urljoin(self.github_api_url, 'repos')
-        issues_endpoint = urljoin(issues_endpoint + '/', repo)
-        issues_endpoint = urljoin(issues_endpoint + '/', 'issues')
-
+        issues_endpoint = urljoin(self.github_api_url, 'repos', repo, 'issues')
         response = self.session.get(issues_endpoint)
         try:
             response.raise_for_status()
@@ -80,20 +77,37 @@ class LabelBot(object):
             pass
         issues = response.json()
 
-        labels_to_add = []
+        # iterate through all isues
         for issue in issues:
+            labels_to_add = []
             # match rules in issue body and title
             for rule in self.rules:
                 if rule.pattern.findall(issue['body'])\
                         or rule.pattern.findall(issue['title']):
                     labels_to_add.append(rule.label)
 
-        print(labels_to_add)
-            # TODO match rules in issue comments if desired
+            # match rules in issue comments if desired
+            issue_endpoint = urljoin(issues_endpoint, str(issue['number']))
+            if self.check_comments:
+                issue_comments_endpoint = urljoin(issue_endpoint, 'comments')
+                response = self.session.get(issue_comments_endpoint)
+                # TODO check status_code
+                comments = response.json()
+                for comment in comments:
+                    for rule in self.rules:
+                        if rule.pattern.findall(comment['body']):
+                            labels_to_add.append(rule.label)
 
-            # get existing labels
+            # get existing label strings
+            existing_labels = [label['name'] for label in issue['labels']]
 
             # set new labels
+            labels_to_add = list(set(labels_to_add))  # make values unique
+            new_labels = existing_labels + labels_to_add
+            if not new_labels == existing_labels:
+                response = self.session.patch(issue_endpoint,
+                                              data=json.dumps(
+                                                  {'labels': new_labels}))
 
         # run this again after given interval
         self.scheduler.enter(self.interval, 1, self._label_issues,
