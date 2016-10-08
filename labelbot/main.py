@@ -31,15 +31,21 @@ from labelbot import LabelBot, UrlParam
 @click.option('--check-comments',
               '-c',
               is_flag=True,
+              default=True,
               help='flag indicating comments should also be checked')
+@click.option('--skip-labeled',
+              '-s',
+              is_flag=True,
+              default=False,
+              help='skip labeling issues that already have any label')
 @click.argument('repo_urls',
                 nargs=-1,
                 required=True,
                 type=UrlParam())
 def cli(repo_urls, token_file, rules_file, interval, default_label,
-        check_comments, recheck):
+        check_comments, skip_labeled):
     labelbot = LabelBot(token_file, rules_file, default_label, interval,
-                        check_comments, recheck)
+                        check_comments, skip_labeled)
     labelbot.add_repos(repo_urls)
     labelbot.run()
 

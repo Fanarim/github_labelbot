@@ -16,13 +16,13 @@ class LabelBot(object):
     github_api_url = 'https://api.github.com'
 
     def __init__(self, token_file, rules_file, default_label, interval,
-                 check_comments, recheck):
+                 check_comments, skip_labeled):
         self.last_issue_checked = 0
         self.scheduler = sched.scheduler(time.time, time.sleep)
         self.default_label = default_label
         self.interval = interval
         self.check_comments = check_comments
-        self.recheck = recheck
+        self.skip_labeled = skip_labeled
 
         # get GitHub token
         self.token = self._get_token(token_file)
@@ -82,6 +82,12 @@ class LabelBot(object):
             labels_to_add = []
             matched = False
 
+            # get existing label strings
+            existing_labels = [label['name'] for label in issue['labels']]
+
+            if self.skip_labeled and len(existing_labels) > 0:
+                continue
+
             # match rules in issue body and title
             for rule in self.rules:
                 if rule.pattern.findall(issue['body'])\
@@ -101,9 +107,6 @@ class LabelBot(object):
                         if rule.pattern.findall(comment['body']):
                             labels_to_add.append(rule.label)
                             matched = True
-
-            # get existing label strings
-            existing_labels = [label['name'] for label in issue['labels']]
 
             # set default label if needed
             if self.default_label and matched == 0:
