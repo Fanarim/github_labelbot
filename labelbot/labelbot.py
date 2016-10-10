@@ -13,6 +13,7 @@ import validators
 
 
 class LabelBot(object):
+    """Class taking care of whole GitHub labeling bot's functionality. """
     github_api_url = 'https://api.github.com'
     repos_endpoint = urljoin(github_api_url, 'user/repos')
     issues_endpoint = urljoin(github_api_url,
@@ -44,7 +45,12 @@ class LabelBot(object):
             self.repos_endpoint).json()
 
     def add_repos(self, repos):
-        """Add repos and start labeling them"""
+        """Check provided URLs are valid GitHub repositories.
+        Get full_name of each such repository and add labeling job for it.
+
+        Args:
+            repos: URLs of github repositories
+        """
         # get list of user/repo values to be labeled
         repo_names = []
         for repo in repos:
@@ -67,7 +73,14 @@ class LabelBot(object):
         self.scheduler.run()
 
     def _label_issues(self, repo):
-        """Add labels to issues in given repo based on labeling rules"""
+        """Iterates through all issues in given repo, tries to match all rules
+        and sets a new labels if needed.
+
+        Args:
+            repo: Full name of repository in form 'user/repo_name' as returned
+            by GitHub API
+        """
+
         print("Labeling issues in " + repo)
 
         # TODO do not check all issues, only the new ones
@@ -132,7 +145,12 @@ class LabelBot(object):
                              argument=(repo,))
 
     def _get_rules(self, rules_file):
-        """Get labeling rules from the provided file"""
+        """Parse labeling rules from the provided file.
+
+        Args:
+            rules_file: path to file containing rules - one line per rule
+            in format regex::label
+        """
         # TODO improve rules validation
         rules = []
         with open(rules_file) as rules_file:
@@ -153,7 +171,15 @@ class LabelBot(object):
 
     def _get_requests_session(self, token):
         """Returns a requests session and verifies valid GitHub token was
-        provided"""
+        provided.
+
+        Args:
+            token: GitHub secret token
+
+        Returns:
+            Requests session with provided token, which can be used for
+            communication with GitHub API.
+        """
         session = requests.Session()
         session.headers = {'Authorization': 'token ' + token,
                            'User-Agent': 'Python'}
