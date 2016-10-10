@@ -14,6 +14,12 @@ import validators
 
 class LabelBot(object):
     github_api_url = 'https://api.github.com'
+    repos_endpoint = urljoin(github_api_url, 'user/repos')
+    issues_endpoint = urljoin(github_api_url,
+                              'repos/{repo}/issues')
+    issue_endpoint = urljoin(issues_endpoint, '{issue}')
+    issue_comments_endpoint = urljoin(issue_endpoint,
+                                      'comments')
 
     def __init__(self, token_file, rules_file, default_label, interval,
                  check_comments, skip_labeled):
@@ -34,8 +40,8 @@ class LabelBot(object):
         self.rules = self._get_rules(rules_file)
 
         # TODO check status_code
-        repos_endpoint = urljoin(self.github_api_url, 'user/repos')
-        self.available_repos_json = self.session.get(repos_endpoint).json()
+        self.available_repos_json = self.session.get(
+            self.repos_endpoint).json()
 
     def add_repos(self, repos):
         """Add repos and start labeling them"""
@@ -68,8 +74,8 @@ class LabelBot(object):
         # (based on user options)
 
         # get issues in given repo
-        issues_endpoint = urljoin(self.github_api_url, 'repos', repo, 'issues')
-        response = self.session.get(issues_endpoint)
+        response = self.session.get(
+            self.issues_endpoint.format(repo=repo))
         try:
             response.raise_for_status()
         except:
@@ -96,10 +102,11 @@ class LabelBot(object):
                     matched = True
 
             # match rules in issue comments if needed
-            issue_endpoint = urljoin(issues_endpoint, str(issue['number']))
             if self.check_comments:
-                issue_comments_endpoint = urljoin(issue_endpoint, 'comments')
-                response = self.session.get(issue_comments_endpoint)
+                response = self.session.get(self.issue_comments_endpoint
+                                            .format(
+                                                issue=str(issue['number']),
+                                                repo=repo))
                 # TODO check status_code
                 comments = response.json()
                 for comment in comments:
@@ -116,9 +123,9 @@ class LabelBot(object):
             labels_to_add = list(set(labels_to_add))  # make values unique
             new_labels = existing_labels + labels_to_add
             if not new_labels == existing_labels:
-                response = self.session.patch(issue_endpoint,
-                                              data=json.dumps(
-                                                  {'labels': new_labels}))
+                response = self.session.patch(self.issue_endpoint.format(
+                    issue=str(issue['number']), repo=repo),
+                    data=json.dumps({'labels': new_labels}))
 
         # run this again after given interval
         self.scheduler.enter(self.interval, 1, self._label_issues,
