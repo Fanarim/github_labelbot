@@ -31,8 +31,11 @@ from labelbot import LabelBot, UrlParam
               '-s',
               is_flag=True,
               help='skip labeling issues that already have any label')
-def cli(token_file, rules_file, default_label, check_comments, skip_labeled):
-    pass
+@click.pass_context
+def cli(ctx, token_file, rules_file, default_label, check_comments,
+        skip_labeled):
+    ctx.obj = LabelBot(token_file, rules_file, default_label,
+                       check_comments, skip_labeled)
 
 
 @cli.command(short_help='Run console daemon periodically checking issues')
@@ -45,15 +48,17 @@ def cli(token_file, rules_file, default_label, check_comments, skip_labeled):
                 nargs=-1,
                 required=True,
                 type=UrlParam())
-def console(interval, repo_urls):
-    labelbot = LabelBot(token_file, rules_file, default_label, interval,
-                        check_comments, skip_labeled)
+@click.pass_obj
+def console(labelbot, interval, repo_urls):
+    labelbot.interval = interval
     labelbot.add_repos(repo_urls)
     labelbot.run()
 
 
 @cli.command(short_help='Run web API listening for issue updates')
-def web():
+@click.pass_obj
+def web(labelbot):
+    # TODO
     pass
 
 if __name__ == '__main__':
