@@ -5,7 +5,7 @@ import click
 from labelbot import LabelBot, UrlParam
 
 
-@click.command()
+@click.group()
 @click.option('--token-file',
               '-t',
               type=click.Path(exists=True,
@@ -20,11 +20,6 @@ from labelbot import LabelBot, UrlParam
                               readable=True),
               default='rules.cfg.sample',
               help='file containing issues labeling rules')
-@click.option('--interval',
-              '-i',
-              type=int,
-              default=10,
-              help='time interval in seconds in which to check issues')
 @click.option('--default-label',
               '-d',
               help='default label to use after no rule is matched')
@@ -36,16 +31,30 @@ from labelbot import LabelBot, UrlParam
               '-s',
               is_flag=True,
               help='skip labeling issues that already have any label')
+def cli(token_file, rules_file, default_label, check_comments, skip_labeled):
+    pass
+
+
+@cli.command(short_help='Run console daemon periodically checking issues')
+@click.option('--interval',
+              '-i',
+              type=int,
+              default=10,
+              help='time interval in seconds in which to check issues')
 @click.argument('repo_urls',
                 nargs=-1,
                 required=True,
                 type=UrlParam())
-def cli(repo_urls, token_file, rules_file, interval, default_label,
-        check_comments, skip_labeled):
+def console(interval, repo_urls):
     labelbot = LabelBot(token_file, rules_file, default_label, interval,
                         check_comments, skip_labeled)
     labelbot.add_repos(repo_urls)
     labelbot.run()
+
+
+@cli.command(short_help='Run web API listening for issue updates')
+def web():
+    pass
 
 if __name__ == '__main__':
     cli()
