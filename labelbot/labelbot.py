@@ -51,7 +51,7 @@ class LabelBot(object):
         Args:
             repos: URLs of github repositories
         """
-        # get list of user/repo values to be labeled
+        # get list of valid user/repo values
         repo_names = []
         for repo in repos:
             found = False
@@ -91,9 +91,9 @@ class LabelBot(object):
             self.issues_endpoint.format(repo=repo))
         try:
             response.raise_for_status()
-        except:
-            # TODO
-            pass
+        except requests.exceptions.HTTPError:
+            print("Couldn't obtain necessary data from GitHub. ",
+                  file=sys.stderr)
         issues = response.json()
 
         # iterate through all isues
@@ -104,6 +104,8 @@ class LabelBot(object):
             # get existing label strings
             existing_labels = [label['name'] for label in issue['labels']]
 
+            # skip this issue if it is already labeled and skip_labeled
+            # flag was used
             if self.skip_labeled and len(existing_labels) > 0:
                 continue
 
