@@ -16,7 +16,7 @@ $ pip install -r requirements.txt
 
 Now you can run the command:
 
-`$ ./main.py --help`
+`$ labelbot/run.py --help`
 
 
 ## About

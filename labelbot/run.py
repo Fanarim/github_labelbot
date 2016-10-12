@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import click
+import console as labelbot_console
 
 from labelbot import LabelBot, UrlParam
 
@@ -50,9 +51,7 @@ def cli(ctx, token_file, rules_file, default_label, check_comments,
                 type=UrlParam())
 @click.pass_obj
 def console(labelbot, interval, repo_urls):
-    labelbot.interval = interval
-    labelbot.add_repos(repo_urls)
-    labelbot.run()
+    labelbot_console.run(labelbot, interval, repo_urls)
 
 
 @cli.command(short_help='Run web API listening for issue updates')
