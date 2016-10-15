@@ -1,5 +1,6 @@
 from flask import abort
 from flask import Flask
+from flask import render_template
 from flask import request
 from hashlib import sha1
 from labelbot import LabelBot
@@ -11,8 +12,9 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def hello():
-    return 'MI-PYT je nejlepší předmět na FITu!'
+def index():
+    labelbot = app.config['labelbot']
+    return render_template('index.html', rules=labelbot.rules)
 
 
 @app.route('/hook', methods=['POST'])
@@ -28,10 +30,11 @@ def hook():
     except:
         abort(400)
 
-    if not app.config['labelbot'].check_repo_accessible(repo_name):
+    labelbot = app.config['labelbot']
+    if not labelbot.check_repo_accessible(repo_name):
         abort(401)
 
-    app.config['labelbot'].label_issue(repo_name, issue_json)
+    labelbot.label_issue(repo_name, issue_json)
 
     return ''
 

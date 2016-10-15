@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>GitHub Labelbot webhook page</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/css/bootstrap.min.css" integrity="sha384-2hfp1SzUoho7/TsGGGDaFdsuuDL0LX2hnUp6VkX3CUQ2K4K+xjboZdsXyp4oUHZj" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="custom.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills pull-xs-right">
+          </ul>
+        </nav>
+        <h3 class="text-muted">GitHub Labelbot sample webhook</h3>
+      </div>
+
+      <div class="row marketing">
+        <div class="col-lg-12">
+          <p>This is a GitHub webhook page serving as a sample for GitHub LabelBot project. It allows GitHub to notify LabelBot about new issues or issue comments in real time. The Bot then scans the issues and assigns new labels if necessary according to configured rules. </p>
+
+          <h4>Configuration</h4>
+          <p>To allow LabelBot to label issues in your repository, additional steps are required:</p>
+          <ul>
+            <li>Add your GitHub bot user as an collaborator to the project you want to label. </li>
+            <li>Create a new webhook in your repo with e.g. <strong>https://labelbot-api.herokuapp.com/hook</strong> Payload URL and <strong>issues</strong> and <strong>issue comment</strong> events allowed. </li>
+            <li>Set WEBHOOK_TOKEN environment variable corresponding to the secret token you used during token_creation. </li>
+          </ul>
+
+          <h4>Configured labeling rules</h4>
+          <table class="table">
+            <thead class="thead-default">
+              <tr>
+                <th>Regex</th>
+                <th>Tag</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rule in rules %}
+              <tr>
+                <td>{{ rule.pattern }}</td>
+                <td>{{ rule.label }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+
+      <footer class="footer">
+        <p>&copy; David Viktora, 2016</p>
+      </footer>
+
+    </div> <!-- /container -->
+  </body>
+</html>
