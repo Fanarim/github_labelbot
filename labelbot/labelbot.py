@@ -22,8 +22,8 @@ class LabelBot(object):
     issue_comments_endpoint = urljoin(issue_endpoint,
                                       'comments')
 
-    def __init__(self, token_file, rules_file, default_label, check_comments,
-                 skip_labeled):
+    def __init__(self, token_file, github_token, rules_file, default_label,
+                 check_comments, skip_labeled):
         self.last_issue_checked = 0
         self.iterval = 0
         self.scheduler = sched.scheduler(time.time, time.sleep)
@@ -32,7 +32,10 @@ class LabelBot(object):
         self.skip_labeled = skip_labeled
 
         # get GitHub token
-        self.token = self._get_token(token_file)
+        if github_token:
+            self.token = github_token
+        else:
+            self.token = self._get_token(token_file)
 
         # get request session and validate token
         self.session = self._get_requests_session(self.token)

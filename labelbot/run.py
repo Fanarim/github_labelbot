@@ -2,6 +2,7 @@
 
 import click
 import console as labelbot_console
+import os
 
 from labelbot import LabelBot, UrlParam
 from web import app
@@ -13,7 +14,7 @@ from web import app
               type=click.Path(exists=True,
                               file_okay=True,
                               readable=True),
-              default='token.cfg',
+              default='token.cfg.sample',
               help='file containing GitHub token information')
 @click.option('--rules-file',
               '-u',
@@ -22,6 +23,10 @@ from web import app
                               readable=True),
               default='rules.cfg.sample',
               help='file containing issues labeling rules')
+@click.option('--github-token',
+              '-g',
+              help='github token used for authentication',
+              default=lambda: os.environ.get('GITHUB_TOKEN'))
 @click.option('--default-label',
               '-d',
               help='default label to use after no rule is matched')
@@ -34,9 +39,9 @@ from web import app
               is_flag=True,
               help='skip labeling issues that already have any label')
 @click.pass_context
-def cli(ctx, token_file, rules_file, default_label, check_comments,
-        skip_labeled):
-    ctx.obj = LabelBot(token_file, rules_file, default_label,
+def cli(ctx, token_file, github_token, rules_file, default_label,
+        check_comments, skip_labeled):
+    ctx.obj = LabelBot(token_file, github_token, rules_file, default_label,
                        check_comments, skip_labeled)
 
 
