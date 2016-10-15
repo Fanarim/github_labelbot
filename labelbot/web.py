@@ -24,7 +24,7 @@ def hook():
 
     try:
         repo_name = data['repository']['full_name']
-        issue_json = data['issue']['number']
+        issue_json = data['issue']
     except:
         abort(400)
 
