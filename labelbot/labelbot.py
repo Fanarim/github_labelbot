@@ -109,8 +109,7 @@ class LabelBot(object):
                                  argument=(repo,))
 
     def _label_issue(self, repo, issue):
-        """Iterates through all issues in given repo and runs _label_issue() on
-        each of them.
+        """Iterates through an issue and labels it.
 
         Args:
             repo: Full name of repository in form 'user/repo_name' as returned

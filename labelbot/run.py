@@ -64,6 +64,7 @@ def console(labelbot, interval, repo_urls):
 @click.pass_obj
 def web(labelbot):
     port = int(os.environ.get('PORT', 80))
+    app.config['labelbot'] = labelbot
     app.run(host='0.0.0.0', port=port, debug=True)
 
 if __name__ == '__main__':
