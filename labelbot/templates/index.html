@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/css/bootstrap.min.css" integrity="sha384-2hfp1SzUoho7/TsGGGDaFdsuuDL0LX2hnUp6VkX3CUQ2K4K+xjboZdsXyp4oUHZj" crossorigin="anonymous">
 
     <!-- Custom styles for this template -->
-    <link href="custom.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='custom.css') }}" rel="stylesheet">
   </head>
 
   <body>
@@ -39,7 +39,7 @@
           <ul>
             <li>Add your GitHub bot user as an collaborator to the project you want to label. </li>
             <li>Create a new webhook in your repo with e.g. <strong>https://labelbot-api.herokuapp.com/hook</strong> Payload URL and <strong>issues</strong> and <strong>issue comment</strong> events allowed. </li>
-            <li>Set WEBHOOK_TOKEN environment variable corresponding to the secret token you used during token_creation. </li>
+            <li>Set WEBHOOK_TOKEN environment variable corresponding to the secret token you used during token creation. </li>
           </ul>
 
           <h4>Configured labeling rules</h4>
@@ -53,7 +53,7 @@
             <tbody>
               {% for rule in rules %}
               <tr>
-                <td>{{ rule.pattern }}</td>
+                <td>{{ rule.pattern.pattern }}</td>
                 <td>{{ rule.label }}</td>
               </tr>
               {% endfor %}
