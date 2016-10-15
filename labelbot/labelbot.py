@@ -22,17 +22,20 @@ class LabelBot(object):
     issue_comments_endpoint = urljoin(issue_endpoint,
                                       'comments')
 
-    def __init__(self, token_file, rules_file, default_label, interval,
+    def __init__(self, token_file, github_token, rules_file, default_label,
                  check_comments, skip_labeled):
         self.last_issue_checked = 0
+        self.iterval = 0
         self.scheduler = sched.scheduler(time.time, time.sleep)
         self.default_label = default_label
-        self.interval = interval
         self.check_comments = check_comments
         self.skip_labeled = skip_labeled
 
         # get GitHub token
-        self.token = self._get_token(token_file)
+        if github_token:
+            self.token = github_token
+        else:
+            self.token = self._get_token(token_file)
 
         # get request session and validate token
         self.session = self._get_requests_session(self.token)
@@ -40,9 +43,7 @@ class LabelBot(object):
         # load and validate rules
         self.rules = self._get_rules(rules_file)
 
-        # TODO check status_code
-        self.available_repos_json = self.session.get(
-            self.repos_endpoint).json()
+        self._update_accessible_repos()
 
     def add_repos(self, repos):
         """Check provided URLs are valid GitHub repositories.
@@ -65,16 +66,37 @@ class LabelBot(object):
 
         # start labeling issues in given repos
         for repo in repo_names:
-            self.scheduler.enter(0, 1, self._label_issues,
+            self.scheduler.enter(0, 1, self._label_repo,
                                  argument=(repo,))
 
-    def run(self):
+    def check_repo_accessible(self, repo):
+        """Updates list of available repos and checks whether given repo is
+        accessible by labelbot.
+
+        Args:
+            repo: full_name of github repository
+        """
+        # update available repos
+        self._update_accessible_repos()
+
+        if repo in [available_repo['full_name'] for available_repo
+                    in self.available_repos_json]:
+            return True
+        else:
+            return False
+
+    def _update_accessible_repos(self):
+        # TODO check status_code
+        self.available_repos_json = self.session.get(
+            self.repos_endpoint).json()
+
+    def run_scheduled(self):
         """Initiate labeling by running a scheduler"""
         self.scheduler.run()
 
-    def _label_issues(self, repo):
-        """Iterates through all issues in given repo, tries to match all rules
-        and sets a new labels if needed.
+    def _label_repo(self, repo, reschedule=True):
+        """Iterates through all issues in given repo and runs _label_issue() on
+        each of them.
 
         Args:
             repo: Full name of repository in form 'user/repo_name' as returned
@@ -98,53 +120,64 @@ class LabelBot(object):
 
         # iterate through all isues
         for issue in issues:
-            labels_to_add = []
-            matched = False
-
-            # get existing label strings
-            existing_labels = [label['name'] for label in issue['labels']]
-
-            # skip this issue if it is already labeled and skip_labeled
-            # flag was used
-            if self.skip_labeled and len(existing_labels) > 0:
-                continue
-
-            # match rules in issue body and title
-            for rule in self.rules:
-                if rule.pattern.findall(issue['body'])\
-                        or rule.pattern.findall(issue['title']):
-                    labels_to_add.append(rule.label)
-                    matched = True
-
-            # match rules in issue comments if needed
-            if self.check_comments:
-                response = self.session.get(self.issue_comments_endpoint
-                                            .format(
-                                                issue=str(issue['number']),
-                                                repo=repo))
-                # TODO check status_code
-                comments = response.json()
-                for comment in comments:
-                    for rule in self.rules:
-                        if rule.pattern.findall(comment['body']):
-                            labels_to_add.append(rule.label)
-                            matched = True
-
-            # set default label if needed
-            if self.default_label and matched == 0:
-                labels_to_add.append(self.default_label)
-
-            # set new labels
-            labels_to_add = list(set(labels_to_add))  # make values unique
-            new_labels = existing_labels + labels_to_add
-            if not new_labels == existing_labels:
-                response = self.session.patch(self.issue_endpoint.format(
-                    issue=str(issue['number']), repo=repo),
-                    data=json.dumps({'labels': new_labels}))
+            self._label_issue(repo, issue)
 
         # run this again after given interval
-        self.scheduler.enter(self.interval, 1, self._label_issues,
-                             argument=(repo,))
+        if reschedule:
+            self.scheduler.enter(self.interval, 1, self._label_repo,
+                                 argument=(repo,))
+
+    def label_issue(self, repo, issue):
+        """Iterates through an issue and labels it.
+
+        Args:
+            repo: Full name of repository in form 'user/repo_name' as returned
+            by GitHub API
+            issue: json interpretation of issue as returned by GitHub API
+        """
+        labels_to_add = []
+        matched = False
+
+        # get existing label strings
+        existing_labels = [label['name'] for label in issue['labels']]
+
+        # skip this issue if it is already labeled and skip_labeled
+        # flag was used
+        if self.skip_labeled and len(existing_labels) > 0:
+            return
+
+        # match rules in issue body and title
+        for rule in self.rules:
+            if rule.pattern.findall(issue['body'])\
+                    or rule.pattern.findall(issue['title']):
+                labels_to_add.append(rule.label)
+                matched = True
+
+        # match rules in issue comments if needed
+        if self.check_comments:
+            response = self.session.get(self.issue_comments_endpoint
+                                        .format(
+                                            issue=str(issue['number']),
+                                            repo=repo))
+            # TODO check status_code
+            comments = response.json()
+            for comment in comments:
+                for rule in self.rules:
+                    if rule.pattern.findall(comment['body']):
+                        labels_to_add.append(rule.label)
+                        matched = True
+
+        # set default label if needed
+        if self.default_label and matched == 0:
+            labels_to_add.append(self.default_label)
+
+        # set new labels
+        labels_to_add = list(set(labels_to_add))  # make values unique
+        new_labels = existing_labels + labels_to_add
+        if not new_labels == existing_labels:
+            response = self.session.patch(self.issue_endpoint.format(
+                issue=str(issue['number']), repo=repo),
+                data=json.dumps({'labels': new_labels}))
 
     def _get_rules(self, rules_file):
         """Parse labeling rules from the provided file.
