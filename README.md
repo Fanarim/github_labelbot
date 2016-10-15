@@ -1,7 +1,7 @@
 # Github Labelbot
 Configurable Github bot used for automatic issues labeling
 
-Sample webhook is running at https://labelbot-api.herokuapp.com/
+Sample webhook is running at https://labelbot-api.herokuapp.com/ and it's functionality can be tested in https://github.com/Fanarim/github_labelbot_testrepo repository.
 
 ## Configuration
 TBA
