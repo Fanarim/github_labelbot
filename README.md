@@ -20,4 +20,4 @@ Now you can run the command:
 
 
 ## About
-Github Labelbot is being developed as part of MI-PYT lecture at Faculty of Information technology, Czech Technical University in Prague.
+Github Labelbot is being developed as part of MI-PYT course at Faculty of Information technology, Czech Technical University in Prague.

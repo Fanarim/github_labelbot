@@ -68,7 +68,7 @@ class LabelBot(object):
             self.scheduler.enter(0, 1, self._label_repo,
                                  argument=(repo,))
 
-    def run(self):
+    def run_scheduled(self):
         """Initiate labeling by running a scheduler"""
         self.scheduler.run()
 

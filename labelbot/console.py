@@ -4,4 +4,4 @@
 def run(labelbot, interval, repo_urls):
     labelbot.interval = interval
     labelbot.add_repos(repo_urls)
-    labelbot.run()
+    labelbot.run_scheduled()
