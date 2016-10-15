@@ -43,9 +43,7 @@ class LabelBot(object):
         # load and validate rules
         self.rules = self._get_rules(rules_file)
 
-        # TODO check status_code
-        self.available_repos_json = self.session.get(
-            self.repos_endpoint).json()
+        self._update_accessible_repos()
 
     def add_repos(self, repos):
         """Check provided URLs are valid GitHub repositories.
@@ -70,6 +68,27 @@ class LabelBot(object):
         for repo in repo_names:
             self.scheduler.enter(0, 1, self._label_repo,
                                  argument=(repo,))
+
+    def check_repo_accessible(self, repo):
+        """Updates list of available repos and checks whether given repo is
+        accessible by labelbot.
+
+        Args:
+            repo: full_name of github repository
+        """
+        # update available repos
+        self._update_accessible_repos()
+
+        if repo in [available_repo['full_name'] for available_repo
+                    in self.available_repos_json]:
+            return True
+        else:
+            return False
+
+    def _update_accessible_repos(self):
+        # TODO check status_code
+        self.available_repos_json = self.session.get(
+            self.repos_endpoint).json()
 
     def run_scheduled(self):
         """Initiate labeling by running a scheduler"""
@@ -108,7 +127,7 @@ class LabelBot(object):
             self.scheduler.enter(self.interval, 1, self._label_repo,
                                  argument=(repo,))
 
-    def _label_issue(self, repo, issue):
+    def label_issue(self, repo, issue):
         """Iterates through an issue and labels it.
 
         Args:

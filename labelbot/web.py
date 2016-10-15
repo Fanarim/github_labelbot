@@ -28,9 +28,11 @@ def hook():
     except:
         abort(400)
 
-    app.config['labelbot']._label_issue(repo_name, issue_json)
+    if not app.config['labelbot'].check_repo_accessible(repo_name):
+        abort(401)
 
-    print(data)
+    app.config['labelbot'].label_issue(repo_name, issue_json)
+
     return ''
 
 
