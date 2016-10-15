@@ -4,6 +4,7 @@ import click
 import console as labelbot_console
 
 from labelbot import LabelBot, UrlParam
+from web import app
 
 
 @click.group()
@@ -57,8 +58,7 @@ def console(labelbot, interval, repo_urls):
 @cli.command(short_help='Run web API listening for issue updates')
 @click.pass_obj
 def web(labelbot):
-    # TODO
-    pass
+    app.run(debug=True)
 
 if __name__ == '__main__':
     cli()
