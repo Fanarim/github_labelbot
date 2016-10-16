@@ -38,7 +38,7 @@
           <p>To allow LabelBot to label issues in your repository, additional steps are required:</p>
           <ul>
             <li>Add your GitHub bot user as an collaborator to the project you want to label. </li>
-            <li>Create a new webhook in your repo with e.g. <strong>https://labelbot-api.herokuapp.com/hook</strong> Payload URL and <strong>issues</strong> and <strong>issue comment</strong> events allowed. </li>
+            <li>Create a new webhook in your repo with e.g. <strong><a href="{{ url_for('hook') }}">{{ url_for('hook', _external=True) }}</a></strong> Payload URL and <strong>issues</strong> and <strong>issue comment</strong> events allowed. </li>
             <li>Set WEBHOOK_TOKEN environment variable corresponding to the secret token you used during token creation. </li>
           </ul>
 
