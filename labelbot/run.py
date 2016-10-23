@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 import click
-import console as labelbot_console
+# import console as labelbot_console
 import os
 
-from labelbot import LabelBot, UrlParam
-from web import app
+from .console import run
+from .labelbot import LabelBot, UrlParam
+from .web import app
 
 
 @click.group()
@@ -57,7 +58,7 @@ def cli(ctx, token_file, github_token, rules_file, default_label,
                 type=UrlParam())
 @click.pass_obj
 def console(labelbot, interval, repo_urls):
-    labelbot_console.run(labelbot, interval, repo_urls)
+    run(labelbot, interval, repo_urls)
 
 
 @cli.command(short_help='Run web API listening for issue updates')
@@ -67,5 +68,7 @@ def web(labelbot):
     app.config['labelbot'] = labelbot
     app.run(host='0.0.0.0', port=port, debug=True)
 
-if __name__ == '__main__':
+cli(prog_name='labelbot')
+
+def main():
     cli()
