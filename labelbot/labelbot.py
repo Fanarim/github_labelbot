@@ -95,7 +95,7 @@ class LabelBot(object):
         self.scheduler.run()
 
     def _label_repo(self, repo, reschedule=True):
-        """Iterates through all issues in given repo and runs _label_issue() on
+        """Iterates through all issues in given repo and runs label_issue() on
         each of them.
 
         Args:
@@ -120,7 +120,7 @@ class LabelBot(object):
 
         # iterate through all isues
         for issue in issues:
-            self._label_issue(repo, issue)
+            self.label_issue(repo, issue)
 
         # run this again after given interval
         if reschedule:
