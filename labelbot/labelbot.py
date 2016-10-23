@@ -235,7 +235,8 @@ class LabelBot(object):
                   file=sys.stderr)
 
             if response.status_code == 401:
-                print('Did you provide a valid token? ',
+                print('Did you provide a valid token? You can specifiy it',
+                      'using --github-token option. ',
                       file=sys.stderr)
 
             sys.exit(1)
