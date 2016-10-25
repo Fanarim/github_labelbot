@@ -2,14 +2,19 @@
 
 from posixpath import join as urljoin
 
+import appdirs
 import click
 import json
+import os
 import re
 import requests
 import sched
+import shutil
 import sys
 import time
 import validators
+
+module_path = os.path.dirname(__file__)
 
 
 class LabelBot(object):
@@ -24,6 +29,44 @@ class LabelBot(object):
 
     def __init__(self, token_file, github_token, rules_file, default_label,
                  check_comments, skip_labeled):
+        config_dir = appdirs.user_config_dir('labelbot')
+        # create config dir
+        if not os.path.exists(config_dir):
+            os.mkdir(config_dir)
+
+        # create/copy config files
+        source_file = os.path.join(module_path, 'token.cfg.sample')
+        sample_token_file = os.path.join(config_dir,
+                                         'token.cfg.sample')
+        if not os.path.exists(sample_token_file):
+            shutil.copyfile(source_file, sample_token_file)
+
+        source_file = os.path.join(module_path, 'rules.cfg.sample')
+        sample_rules_file = os.path.join(config_dir,
+                                         'rules.cfg.sample')
+        if not os.path.exists(sample_rules_file):
+            shutil.copyfile(source_file, sample_rules_file)
+
+        # set default config files path if not set, get github token
+        if token_file:
+            self.token_file = token_file
+        elif github_token:
+            self.token = github_token
+        else:
+            print("Warning: You didn't set a GitHub token using -t or -u . "
+                  "Using default config file at " + sample_token_file + ". ",
+                  file=sys.stderr)
+            self.token_file = sample_token_file
+            self.token = self._get_token(self.token_file)
+
+        if rules_file:
+            self.rules_file = rules_file
+        else:
+            print("Warning: You didn't set a rules config file. Using default "
+                  "file at " + sample_rules_file + ". ",
+                  file=sys.stderr)
+            self.rules_file = sample_rules_file
+
         self.last_issue_checked = 0
         self.iterval = 0
         self.scheduler = sched.scheduler(time.time, time.sleep)
@@ -31,17 +74,11 @@ class LabelBot(object):
         self.check_comments = check_comments
         self.skip_labeled = skip_labeled
 
-        # get GitHub token
-        if github_token:
-            self.token = github_token
-        else:
-            self.token = self._get_token(token_file)
-
         # get request session and validate token
         self.session = self._get_requests_session(self.token)
 
         # load and validate rules
-        self.rules = self._get_rules(rules_file)
+        self.rules = self._get_rules(self.rules_file)
 
         self._update_accessible_repos()
 
@@ -95,7 +132,7 @@ class LabelBot(object):
         self.scheduler.run()
 
     def _label_repo(self, repo, reschedule=True):
-        """Iterates through all issues in given repo and runs _label_issue() on
+        """Iterates through all issues in given repo and runs label_issue() on
         each of them.
 
         Args:
@@ -120,7 +157,7 @@ class LabelBot(object):
 
         # iterate through all isues
         for issue in issues:
-            self._label_issue(repo, issue)
+            self.label_issue(repo, issue)
 
         # run this again after given interval
         if reschedule:
@@ -235,7 +272,8 @@ class LabelBot(object):
                   file=sys.stderr)
 
             if response.status_code == 401:
-                print('Did you provide a valid token? ',
+                print('Did you provide a valid token? You can specifiy it',
+                      'using --github-token option. ',
                       file=sys.stderr)
 
             sys.exit(1)

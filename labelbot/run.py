@@ -1,11 +1,27 @@
 #!/usr/bin/env python3
 
+import appdirs
 import click
-import console as labelbot_console
 import os
+import shutil
+import sys
 
-from labelbot import LabelBot, UrlParam
-from web import app
+from .console import run
+from .labelbot import LabelBot, UrlParam
+from .web import app
+
+module_path = os.path.dirname(__file__)
+
+
+class DummyLabelBot(object):
+    def __init__(self, token_file, github_token, rules_file,
+                 default_label, check_comments, skip_labeled):
+        self.token_file = token_file
+        self.rules_file = rules_file
+        self.github_token = github_token
+        self.default_label = default_label
+        self.check_comments = check_comments
+        self.skip_labeled = skip_labeled
 
 
 @click.group()
@@ -14,14 +30,12 @@ from web import app
               type=click.Path(exists=True,
                               file_okay=True,
                               readable=True),
-              default='token.cfg.sample',
               help='file containing GitHub token information')
 @click.option('--rules-file',
               '-u',
               type=click.Path(exists=True,
                               file_okay=True,
                               readable=True),
-              default='rules.cfg.sample',
               help='file containing issues labeling rules')
 @click.option('--github-token',
               '-g',
@@ -41,8 +55,9 @@ from web import app
 @click.pass_context
 def cli(ctx, token_file, github_token, rules_file, default_label,
         check_comments, skip_labeled):
-    ctx.obj = LabelBot(token_file, github_token, rules_file, default_label,
-                       check_comments, skip_labeled)
+    # pass click context
+    ctx.obj = DummyLabelBot(token_file, github_token, rules_file,
+                            default_label, check_comments, skip_labeled)
 
 
 @cli.command(short_help='Run console daemon periodically checking issues')
@@ -57,15 +72,29 @@ def cli(ctx, token_file, github_token, rules_file, default_label,
                 type=UrlParam())
 @click.pass_obj
 def console(labelbot, interval, repo_urls):
-    labelbot_console.run(labelbot, interval, repo_urls)
+    labelbot = LabelBot(labelbot.token_file,
+                        labelbot.github_token,
+                        labelbot.rules_file,
+                        labelbot.default_label,
+                        labelbot.check_comments,
+                        labelbot.skip_labeled,)
+    run(labelbot, interval, repo_urls)
 
 
 @cli.command(short_help='Run web API listening for issue updates')
 @click.pass_obj
 def web(labelbot):
-    port = int(os.environ.get('PORT', 80))
-    app.config['labelbot'] = labelbot
-    app.run(host='0.0.0.0', port=port, debug=True)
+    port = int(os.environ.get('PORT', 8080))
+    app.config['labelbot'] = LabelBot(labelbot.token_file,
+                                      labelbot.github_token,
+                                      labelbot.rules_file,
+                                      labelbot.default_label,
+                                      labelbot.check_comments,
+                                      labelbot.skip_labeled,)
+    app.run(host='0.0.0.0', port=port)
 
-if __name__ == '__main__':
+cli(prog_name='labelbot')
+
+
+def main():
     cli()
