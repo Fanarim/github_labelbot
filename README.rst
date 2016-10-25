@@ -7,6 +7,12 @@ Sample webhook is running at https://labelbot-api.herokuapp.com/ and
 it's functionality can be tested in
 https://github.com/Fanarim/github\_labelbot\_testrepo repository.
 
+Package can be installed from testpypi using:
+
+::
+
+    $ python -m pip install --extra-index-url https://testpypi.python.org/pypi github-labelbot
+
 Configuration
 -------------
 

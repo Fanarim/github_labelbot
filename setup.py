@@ -7,7 +7,7 @@ with open('README.rst') as readme:
 
 setup(
     name='github-labelbot',
-    version='0.3.0.17',
+    version='0.3.0.20',
     description='Simple bot labeling GitHub issues based on it\'s configuration. ',
     long_description=long_description,
     author='David Viktora',
