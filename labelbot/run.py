@@ -1,12 +1,31 @@
 #!/usr/bin/env python3
 
 import click
-# import console as labelbot_console
 import os
 
 from .console import run
 from .labelbot import LabelBot, UrlParam
 from .web import app
+
+
+class DummyLabelBot(object):
+    def __init__(self, token_file, github_token, rules_file,
+                 default_label, check_comments, skip_labeled):
+        # skip validation if file does not exist
+        if token_file:
+            self.token_file = token_file
+        else:
+            self.token_file = 'token.cfg.sample'
+
+        if rules_file:
+            self.rules_file = rules_file
+        else:
+            self.rules_file = 'rules.cfg.sample'
+
+        self.github_token = github_token
+        self.default_label = default_label
+        self.check_comments = check_comments
+        self.skip_labeled = skip_labeled
 
 
 @click.group()
@@ -15,14 +34,12 @@ from .web import app
               type=click.Path(exists=True,
                               file_okay=True,
                               readable=True),
-              default='token.cfg.sample',
               help='file containing GitHub token information')
 @click.option('--rules-file',
               '-u',
               type=click.Path(exists=True,
                               file_okay=True,
                               readable=True),
-              default='rules.cfg.sample',
               help='file containing issues labeling rules')
 @click.option('--github-token',
               '-g',
@@ -42,8 +59,8 @@ from .web import app
 @click.pass_context
 def cli(ctx, token_file, github_token, rules_file, default_label,
         check_comments, skip_labeled):
-    ctx.obj = LabelBot(token_file, github_token, rules_file, default_label,
-                       check_comments, skip_labeled)
+    ctx.obj = DummyLabelBot(token_file, github_token, rules_file,
+                            default_label, check_comments, skip_labeled)
 
 
 @cli.command(short_help='Run console daemon periodically checking issues')
@@ -65,10 +82,16 @@ def console(labelbot, interval, repo_urls):
 @click.pass_obj
 def web(labelbot):
     port = int(os.environ.get('PORT', 8080))
-    app.config['labelbot'] = labelbot
+    app.config['labelbot'] = LabelBot(labelbot.token_file,
+                                      labelbot.github_token,
+                                      labelbot.rules_file,
+                                      labelbot.default_label,
+                                      labelbot.check_comments,
+                                      labelbot.skip_labeled,)
     app.run(host='0.0.0.0', port=port, debug=True)
 
 cli(prog_name='labelbot')
+
 
 def main():
     cli()
