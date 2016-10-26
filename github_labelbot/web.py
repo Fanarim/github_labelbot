@@ -3,7 +3,7 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from hashlib import sha1
-from .labelbot import LabelBot
+from github_labelbot.labelbot import LabelBot
 
 import hmac
 import os

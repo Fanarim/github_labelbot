@@ -7,7 +7,7 @@ with open('README.rst') as readme:
 
 setup(
     name='github-labelbot',
-    version='0.3.0.20',
+    version='0.3.1',
     description='Simple bot labeling GitHub issues based on it\'s configuration. ',
     long_description=long_description,
     author='David Viktora',
@@ -38,11 +38,11 @@ setup(
                       'appdirs==1.4.0'],
     entry_points={
         'console_scripts': [
-            'labelbot = labelbot.run:main',
+            'labelbot = github_labelbot.run:main',
         ],
     },
     package_data={
-        'labelbot': [
+        'github_labelbot': [
             'static/custom.css',
             'templates/index.html',
             'rules.cfg.sample',

@@ -6,9 +6,9 @@ import os
 import shutil
 import sys
 
-from .console import run
-from .labelbot import LabelBot, UrlParam
-from .web import app
+from github_labelbot.console import run
+from github_labelbot.labelbot import LabelBot, UrlParam
+from github_labelbot.web import app
 
 module_path = os.path.dirname(__file__)
 
