@@ -30,22 +30,27 @@ class LabelBot(object):
     def __init__(self, token_file, github_token, rules_file, default_label,
                  check_comments, skip_labeled):
         config_dir = appdirs.user_config_dir('labelbot')
-        # create config dir
-        if not os.path.exists(config_dir):
-            os.mkdir(config_dir)
 
         # create/copy config files
-        source_file = os.path.join(module_path, 'token.cfg.sample')
-        sample_token_file = os.path.join(config_dir,
-                                         'token.cfg.sample')
-        if not os.path.exists(sample_token_file):
-            shutil.copyfile(source_file, sample_token_file)
+        if token_file == "" and github_token == "":
+            # create config dir
+            if not os.path.exists(config_dir):
+                os.mkdir(config_dir)
+            source_file = os.path.join(module_path, 'token.cfg.sample')
+            sample_token_file = os.path.join(config_dir,
+                                             'token.cfg.sample')
+            if not os.path.exists(sample_token_file):
+                shutil.copyfile(source_file, sample_token_file)
 
-        source_file = os.path.join(module_path, 'rules.cfg.sample')
-        sample_rules_file = os.path.join(config_dir,
-                                         'rules.cfg.sample')
-        if not os.path.exists(sample_rules_file):
-            shutil.copyfile(source_file, sample_rules_file)
+        if rules_file == "":
+            # create config dir
+            if not os.path.exists(config_dir):
+                os.mkdir(config_dir)
+            source_file = os.path.join(module_path, 'rules.cfg.sample')
+            sample_rules_file = os.path.join(config_dir,
+                                             'rules.cfg.sample')
+            if not os.path.exists(sample_rules_file):
+                shutil.copyfile(source_file, sample_rules_file)
 
         # set default config files path if not set, get github token
         if token_file:
