@@ -116,7 +116,12 @@ class LabelBot(object):
         accessible by labelbot.
 
         Args:
-            repo: full_name of github repository
+            repo (str): ``full_name`` of GitHub repository as returned by\
+            GitHub API
+
+        Returns:
+            bool: ``True`` if repo is accessible for the Labelbot, ``False``\
+            otherwise
         """
         # update available repos
         self._update_accessible_repos()
@@ -173,7 +178,7 @@ class LabelBot(object):
         """Iterates through an issue and labels it.
 
         Args:
-            repo: Full name of repository in form 'user/repo_name' as returned
+            repo: Full name of repository in form 'user/repo_name' as returned\
             by GitHub API
             issue: json interpretation of issue as returned by GitHub API
         """
