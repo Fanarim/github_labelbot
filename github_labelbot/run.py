@@ -10,10 +10,10 @@ from github_labelbot.console import run
 from github_labelbot.labelbot import LabelBot, UrlParam
 from github_labelbot.web import app
 
-module_path = os.path.dirname(__file__)
-
 
 class DummyLabelBot(object):
+    """Dummy class used for passing input options thgrough click's context.
+    """
     def __init__(self, token_file, github_token, rules_file,
                  default_label, check_comments, skip_labeled):
         self.token_file = token_file
@@ -72,6 +72,7 @@ def cli(ctx, token_file, github_token, rules_file, default_label,
                 type=UrlParam())
 @click.pass_obj
 def console(labelbot, interval, repo_urls):
+    """Runs LabelBot in console mode"""
     labelbot = LabelBot(labelbot.token_file,
                         labelbot.github_token,
                         labelbot.rules_file,
@@ -84,6 +85,7 @@ def console(labelbot, interval, repo_urls):
 @cli.command(short_help='Run web API listening for issue updates')
 @click.pass_obj
 def web(labelbot):
+    """Runs LabelBot in web mode"""
     port = int(os.environ.get('PORT', 8080))
     app.config['labelbot'] = LabelBot(labelbot.token_file,
                                       labelbot.github_token,
@@ -93,8 +95,7 @@ def web(labelbot):
                                       labelbot.skip_labeled,)
     app.run(host='0.0.0.0', port=port)
 
-cli(prog_name='labelbot')
-
 
 def main():
+    cli(prog_name='labelbot')
     cli()

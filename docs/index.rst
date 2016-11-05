@@ -7,22 +7,27 @@ Welcome to Github Labelbot's documentation!
 ===========================================
 
 Github Labelbot is a simple GitHub bot written in Python3 allowing automatic
-labeling of GitHub issues. It can run in two independet modes - as simple
-console application periodically checking the issues, or as a webapp allowing
-usage of GitHub Hooks. For further details on how to use Github Labelbot,
-please see :ref:`usage`. For source code details, refer to
+labeling of GitHub issues. It can run in two different modes - as simple
+console application periodically checking the issues in given interval, or as
+a webapp allowing usage of GitHub Hooks. For further details on how to use
+Github Labelbot, please see :ref:`usage`. For source code details, refer to
 :ref:`source-documentation`.
+
+If you'd like to contribute, report an issue or view source code, visit
+`GitHub project page`_.
+
+.. _GitHub project page: https://github.com/Fanarim/github_labelbot
 
 
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
+   installation
+   configuration
    usage
    source-documentation
-   github_labelbot
-   modules
 
 
 Indices and tables

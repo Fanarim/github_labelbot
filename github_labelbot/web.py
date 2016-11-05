@@ -13,12 +13,17 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+    """Index endpoint providing basic information for LabelBot users.
+    """
     labelbot = app.config['labelbot']
     return render_template('index.html', rules=labelbot.rules)
 
 
 @app.route('/hook', methods=['POST'])
 def hook():
+    """Endpoint `/hook` serves as a GitHub webhook listening for incoming
+    requests/notifications from observed GitHub repositories.
+    """
     if not validate_secret(request):
         abort(401)
 
@@ -40,6 +45,15 @@ def hook():
 
 
 def validate_secret(request):
+    """Validates a secret that should be configured in every GitHub repository
+    automaticaly checked by LabelBot. This secret is sent in every Http request
+    made by GitHub and allows LabelBot's webhook to filter unauthorized
+    requests.
+
+    Args:
+        request (flask.request): Flask request object containing incoming
+            request information.
+    """
     # get expected secret from env
     token = os.environ.get('WEBHOOK_TOKEN')
     if not token:

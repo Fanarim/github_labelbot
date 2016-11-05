@@ -7,11 +7,6 @@ Sample webhook is running at https://labelbot-api.herokuapp.com/ and
 it's functionality can be tested in
 https://github.com/Fanarim/github\_labelbot\_testrepo repository.
 
-Package can be installed from testpypi using:
-
-::
-
-    $ python -m pip install --extra-index-url https://testpypi.python.org/pypi github-labelbot
 
 Configuration
 -------------
@@ -25,14 +20,21 @@ Clone the repo and install necessary packages:
 
 ::
 
-    $ git clone https://github.com/Fanarim/github_labelbot
-    $ virtualenv -p python3 venv
-    $ source venv/bin/activate
-    $ pip install -r requirements.txt
+  $ git clone https://github.com/Fanarim/github_labelbot
+  $ virtualenv -p python3 venv
+  $ source venv/bin/activate
+  $ ./setup.py install
+
+Alternativelly you can install Labelbot using pip:
+
+::
+
+  $ python -m pip install --extra-index-url https://testpypi.python.org/pypi github-labelbot
+
 
 Now you can run the command:
 
-``$ labelbot/run.py --help``
+``$ labelbot --help``
 
 Heroku deployment
 -----------------
@@ -44,6 +46,17 @@ to be set:
 
     WEBHOOK_TOKEN=webhook_token - GitHub webhook secret/token
     GITHUB_TOKEN=github_token - GitHub API token
+
+Documentation generation
+------------------------
+
+To regenerate the documentation, run the following commands:
+
+::
+
+    $ cd docs
+    $ make html
+
 
 About
 -----

@@ -2,3 +2,14 @@
 
 Usage
 =====
+
+Running
+-------
+
+
+
+Console mode
+------------
+
+Web mode
+--------
