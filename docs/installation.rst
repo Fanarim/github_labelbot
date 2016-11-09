@@ -6,11 +6,12 @@ Installation
 To install the Labelbot, following steps are needed.
 
 1. In case you don't want Labelbot to be installed to your whole system, create
-a virtualenv:
+a virtualenv and activate it:
 
 ::
 
   $ virtualenv venv -p python3
+  $ source venv/bin/activate
 
 2a. Download the Labelbot from GitHub and install it using ``setup.py``:
 
