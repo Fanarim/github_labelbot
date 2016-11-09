@@ -18,7 +18,7 @@ module_path = os.path.dirname(__file__)
 
 
 class LabelBot(object):
-    """Class taking care of whole GitHub labeling bot's functionality. """
+    """Class taking care of whole GitHub labeling bot's iiner functionality. """
     github_api_url = 'https://api.github.com'
     repos_endpoint = urljoin(github_api_url, 'user/repos')
     issues_endpoint = urljoin(github_api_url,
@@ -92,7 +92,7 @@ class LabelBot(object):
         Get full_name of each such repository and add labeling job for it.
 
         Args:
-            repos: URLs of github repositories
+            repos(:obj:`list` of :obj:`str`): URLs of github repositories
         """
         # get list of valid user/repo values
         repo_names = []
@@ -116,7 +116,12 @@ class LabelBot(object):
         accessible by labelbot.
 
         Args:
-            repo: full_name of github repository
+            repo (:obj:`str`): ``full_name`` of GitHub repository as returned by\
+            GitHub API
+
+        Returns:
+            bool: ``True`` if repo is accessible for the Labelbot, ``False``\
+            otherwise
         """
         # update available repos
         self._update_accessible_repos()
@@ -128,12 +133,16 @@ class LabelBot(object):
             return False
 
     def _update_accessible_repos(self):
+        """Makes a request to GitHub API to get list of repos accessible
+        by bot user.
+        """
         # TODO check status_code
         self.available_repos_json = self.session.get(
             self.repos_endpoint).json()
 
     def run_scheduled(self):
-        """Initiate labeling by running a scheduler"""
+        """Initiate periodical labeling by running a scheduler. Used in
+        console mode only. """
         self.scheduler.run()
 
     def _label_repo(self, repo, reschedule=True):
@@ -141,8 +150,10 @@ class LabelBot(object):
         each of them.
 
         Args:
-            repo: Full name of repository in form 'user/repo_name' as returned
-            by GitHub API
+            repo(:obj:`str`): Full name of repository in form 'user/repo_name' as returned
+                by GitHub API
+            reschedule (:obj:`bool`, optional): Flag signaling if this method should
+                be rescheduled after given interval. Default to ``True``.
         """
 
         print("Labeling issues in " + repo)
@@ -170,12 +181,12 @@ class LabelBot(object):
                                  argument=(repo,))
 
     def label_issue(self, repo, issue):
-        """Iterates through an issue and labels it.
+        """Scans the issue and labels it based on configured rules.
 
         Args:
-            repo: Full name of repository in form 'user/repo_name' as returned
+            repo(:obj:`str`): Full name of repository in form 'user/repo_name' as returned\
             by GitHub API
-            issue: json interpretation of issue as returned by GitHub API
+            issue(:obj:`str`): json interpretation of issue as returned by GitHub API
         """
         labels_to_add = []
         matched = False
@@ -225,7 +236,7 @@ class LabelBot(object):
         """Parse labeling rules from the provided file.
 
         Args:
-            rules_file: path to file containing rules - one line per rule
+            rules_file(:obj:`str`: path to file containing rules - one line per rule
             in format regex::label
         """
         # TODO improve rules validation
@@ -240,7 +251,14 @@ class LabelBot(object):
         return rules
 
     def _get_token(self, token_file):
-        """Get GitHub token from the provided file"""
+        """Get GitHub token from the provided file
+
+        Args:
+            token_file (:obj:`str`): Path to file containing GitHub token file.
+
+        Returns:
+            Token string parsed from the input token_file.
+        """
         with open(token_file) as token_file:
             token = token_file.readline().splitlines()[0]
 
@@ -251,7 +269,7 @@ class LabelBot(object):
         provided.
 
         Args:
-            token: GitHub secret token
+            token(:obj:`str`): GitHub secret token
 
         Returns:
             Requests session with provided token, which can be used for
@@ -287,7 +305,9 @@ class LabelBot(object):
 
 
 class UrlParam(click.ParamType):
-    """Class used for validating GitHub Repository URLs"""
+    """Class used for validating GitHub Repository URLs using click's
+    ParamType.
+    """
     name = 'url'
 
     def convert(self, value, param, ctx):
@@ -307,7 +327,8 @@ class UrlParam(click.ParamType):
 
 
 class LabelingRule(object):
-    """Simple structure holding a single labeling rule"""
+    """Simple structure holding a single labeling rule consisting of pattern
+    and label. """
     def __init__(self, regex, label):
         self.pattern = re.compile(regex)
         self.label = label
