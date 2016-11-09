@@ -92,7 +92,7 @@ class LabelBot(object):
         Get full_name of each such repository and add labeling job for it.
 
         Args:
-            repos: URLs of github repositories
+            repos(:obj:`list` of :obj:`str`): URLs of github repositories
         """
         # get list of valid user/repo values
         repo_names = []
@@ -116,7 +116,7 @@ class LabelBot(object):
         accessible by labelbot.
 
         Args:
-            repo (str): ``full_name`` of GitHub repository as returned by\
+            repo (:obj:`str`): ``full_name`` of GitHub repository as returned by\
             GitHub API
 
         Returns:
@@ -150,9 +150,9 @@ class LabelBot(object):
         each of them.
 
         Args:
-            repo: Full name of repository in form 'user/repo_name' as returned
+            repo(:obj:`str`): Full name of repository in form 'user/repo_name' as returned
                 by GitHub API
-            reschedule (bool, optional): Flag signaling if this method should
+            reschedule (:obj:`bool`, optional): Flag signaling if this method should
                 be rescheduled after given interval. Default to ``True``.
         """
 
@@ -184,9 +184,9 @@ class LabelBot(object):
         """Scans the issue and labels it based on configured rules.
 
         Args:
-            repo: Full name of repository in form 'user/repo_name' as returned\
+            repo(:obj:`str`): Full name of repository in form 'user/repo_name' as returned\
             by GitHub API
-            issue: json interpretation of issue as returned by GitHub API
+            issue(:obj:`str`): json interpretation of issue as returned by GitHub API
         """
         labels_to_add = []
         matched = False
@@ -236,7 +236,7 @@ class LabelBot(object):
         """Parse labeling rules from the provided file.
 
         Args:
-            rules_file: path to file containing rules - one line per rule
+            rules_file(:obj:`str`: path to file containing rules - one line per rule
             in format regex::label
         """
         # TODO improve rules validation
@@ -254,7 +254,7 @@ class LabelBot(object):
         """Get GitHub token from the provided file
 
         Args:
-            token_file (str): Path to file containing GitHub token file.
+            token_file (:obj:`str`): Path to file containing GitHub token file.
 
         Returns:
             Token string parsed from the input token_file.
@@ -269,7 +269,7 @@ class LabelBot(object):
         provided.
 
         Args:
-            token: GitHub secret token
+            token(:obj:`str`): GitHub secret token
 
         Returns:
             Requests session with provided token, which can be used for

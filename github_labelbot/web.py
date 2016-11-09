@@ -51,7 +51,7 @@ def validate_secret(request):
     requests.
 
     Args:
-        request (flask.request): Flask request object containing incoming
+        request (:obj:`flask.request`): Flask request object containing incoming
             request information.
     """
     # get expected secret from env

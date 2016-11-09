@@ -9,9 +9,11 @@ Welcome to Github Labelbot's documentation!
 Github Labelbot is a simple GitHub bot written in Python3 allowing automatic
 labeling of GitHub issues. It can run in two different modes - as simple
 console application periodically checking the issues in given interval, or as
-a webapp allowing usage of GitHub Hooks. For further details on how to use
-Github Labelbot, please see :ref:`usage`. For source code details, refer to
+a webapp allowing usage of `GitHub Webhooks`_. For further details on how to use
+Github Labelbot, please see :ref:`running`. For source code details, refer to
 :ref:`source-documentation`.
+
+.. _GitHub Webhooks: https://developer.github.com/webhooks/
 
 If you'd like to contribute, report an issue or view source code, visit
 `GitHub project page`_.
@@ -26,7 +28,8 @@ Contents:
 
    installation
    configuration
-   usage
+   deployment
+   running
    source-documentation
 
 

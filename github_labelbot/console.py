@@ -6,7 +6,7 @@ def run(labelbot, interval, repo_urls):
     based on given interval.
 
     Args:
-        interval (int): Interval in which repositories should be re-checked.
+        interval (:obj:`int`): Interval in which repositories should be re-checked.
         repo_urls (:obj:`list` of :obj:`str`): List of repository URLs to be
             checked by labelbot.
     """

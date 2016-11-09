@@ -7,6 +7,10 @@ Sample webhook is running at https://labelbot-api.herokuapp.com/ and
 it's functionality can be tested in
 https://github.com/Fanarim/github\_labelbot\_testrepo repository.
 
+Documentation_ is available at Read The Docs.
+
+.. _Documentation: http://github-labelbot.readthedocs.io/en/latest/
+
 
 Configuration
 -------------
