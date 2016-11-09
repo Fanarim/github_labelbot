@@ -1,3 +1,8 @@
+.. image:: https://readthedocs.org/projects/github-labelbot/badge/?version=latest
+   :target: http://github-labelbot.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
+
 Github Labelbot
 ===============
 
